@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace Intel Engine Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans p-8">
+
+    <div class="max-w-5xl mx-auto space-y-8">
+        <header class="border-b border-slate-800 pb-6 flex justify-between items-end">
+            <div>
+                <h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                    Marketplace Intelligence Engine
+                </h1>
+                <p class="text-slate-400 mt-2">Live Real-Time Optimization Engine & Unit Economics Dashboard</p>
+            </div>
+            <div id="status-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-400 border border-slate-700">
+                System Idle
+            </div>
+        </header>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-slate-800 border border-slate-700/50 rounded-xl p-6 flex flex-col justify-center items-center border-dashed relative">
+                <input type="file" id="file-upload" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept=".csv">
+                <p class="text-slate-300 font-medium">Drag & Drop CSV Dataset</p>
+                <p class="text-xs text-slate-500 mt-1">Must contain 'competitor_price' column</p>
+            </div>
+
+            <div class="bg-slate-800 border border-slate-700/50 rounded-xl p-6 flex flex-col justify-center items-center">
+                <p class="text-slate-400 text-sm mb-4">No dataset? Fetch live real-world data instead.</p>
+                <button id="scrape-btn" class="bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold py-3 px-6 rounded-lg transition-colors w-full">
+                    Run Autonomous Scrapers
+                </button>
+            </div>
+        </section>
+
+        <main class="grid grid-cols-1 md:grid-cols-2 gap-6 transition-opacity duration-300" id="dashboard-main">
+            <div class="bg-slate-800 border border-slate-700/50 rounded-xl p-6 space-y-6">
+                <h2 class="text-xl font-bold text-slate-200 border-b border-slate-700 pb-2">Market Indicators</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center p-3 bg-slate-900/50 rounded-lg">
+                        <span class="text-slate-400">Target Region</span>
+                        <span id="region-val" class="font-semibold text-cyan-400">--</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-slate-900/50 rounded-lg">
+                        <span class="text-slate-400">Competitor Supply Density</span>
+                        <span id="competitor-val" class="font-semibold text-cyan-400">--</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-slate-900/50 rounded-lg">
+                        <span class="text-slate-400">Demand Multiplier Index</span>
+                        <span id="demand-val" class="font-semibold text-cyan-400">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 border border-slate-700/50 rounded-xl p-6 space-y-6">
+                <h2 class="text-xl font-bold text-slate-200 border-b border-slate-700 pb-2">Algorithmic Optimization</h2>
+                <div class="text-center p-6 bg-slate-900/50 rounded-xl border border-emerald-500/20">
+                    <p class="text-xs text-slate-400 uppercase tracking-widest font-semibold">Optimal Processing Fee</p>
+                    <p id="fee-val" class="text-5xl font-black text-emerald-400 mt-2">$0.00</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const fileUpload = document.getElementById('file-upload');
+        const scrapeBtn = document.getElementById('scrape-btn');
+        const statusBadge = document.getElementById('status-badge');
+
+        function setStatus(msg, colorClass) {
+            statusBadge.innerText = msg;
+            statusBadge.className = `px-3 py-1 rounded-full text-xs font-bold ${colorClass} border border-slate-700`;
+        }
+
+        async function triggerEngine(file = null) {
+            setStatus("Processing...", "bg-amber-500/20 text-amber-400");
+            
+            const formData = new FormData();
+            if (file) formData.append("file", file);
+
+            try {
+                // The ?t=${Date.now()} forces a unique request to bypass browser cache
+                const response = await fetch(`http://127.0.0.1:8000/api/metrics?t=${Date.now()}`, {
+                    method: 'POST',
+                    body: file ? formData : null
+                });
+                
+                const data = await response.json();
+                console.log("New Data:", data);
+
+                if (data.success) {
+                    document.getElementById('region-val').textContent = data.market_indicators.region;
+                    document.getElementById('competitor-val').textContent = `${data.market_indicators.competitor_count} Platforms`;
+                    document.getElementById('demand-val').textContent = `${data.market_indicators.demand_index}x`;
+                    document.getElementById('fee-val').textContent = `$${data.optimization_results.optimal_processing_fee.toFixed(2)}`;
+                    setStatus("Data Synchronized", "bg-emerald-500/20 text-emerald-400");
+                } else {
+                    alert("Error: " + data.error);
+                    setStatus("System Error", "bg-rose-500/20 text-rose-400");
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+                setStatus("Connection Failed", "bg-rose-500/20 text-rose-400");
+            }
+        }
+
+        fileUpload.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) triggerEngine(e.target.files[0]);
+        });
+
+        scrapeBtn.addEventListener('click', () => triggerEngine(null));
+    </script>
+</body>
+</html>

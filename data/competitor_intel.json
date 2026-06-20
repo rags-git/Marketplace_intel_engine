@@ -1,0 +1,27 @@
+[
+    {
+        "equipment_name": "A Light in the Attic",
+        "competitor_price": 52.02,
+        "timestamp": "2026-06-19T14:37:43.237329"
+    },
+    {
+        "equipment_name": "Tipping the Velvet",
+        "competitor_price": 61.02,
+        "timestamp": "2026-06-19T14:37:43.237423"
+    },
+    {
+        "equipment_name": "Soumission",
+        "competitor_price": 43.67,
+        "timestamp": "2026-06-19T14:37:43.237499"
+    },
+    {
+        "equipment_name": "Sharp Objects",
+        "competitor_price": 42.38,
+        "timestamp": "2026-06-19T14:37:43.237574"
+    },
+    {
+        "equipment_name": "Sapiens: A Brief History of Humankind",
+        "competitor_price": 50.76,
+        "timestamp": "2026-06-19T14:37:43.237646"
+    }
+]
